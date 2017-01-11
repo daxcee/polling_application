@@ -9,6 +9,7 @@
     "bootstrap": "^3.3.5",
     "express": "^4.13.1",
     "react": "^0.13.3",
+    "react-bash": "^1.4.3",
     "socket.io": "^1.3.6",
     "socket.io-client": "^1.3.6",
     "webpack": "^1.10.5"
@@ -19,5 +20,5 @@
     "start": "node app-server.js"
   },
   "author": "Joshua Nezianya",
-  "license": ""
+  "license": "MIT"
 }
