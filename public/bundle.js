@@ -20441,24 +20441,35 @@
 
 	    getInitialState: function getInitialState() {
 	        return {
-	            status: 'disconnected'
+	            status: 'disconnected',
+	            title: ''
 	        };
 	    },
 
 	    componentWillMount: function componentWillMount() {
 	        this.socket = io('http://localhost:3000');
 	        this.socket.on('connect', this.connect);
+	        this.socket.on('disconnect', this.disconnect);
+	        this.socket.on('welcome', this.welcome);
 	    },
 
 	    connect: function connect() {
 	        this.setState({ status: 'connected' });
 	    },
 
+	    disconnect: function disconnect() {
+	        this.setState({ status: 'disconnected' });
+	    },
+
+	    welcome: function welcome(serverState) {
+	        this.setState({ title: serverState.title });
+	    },
+
 	    render: function render() {
 	        return React.createElement(
 	            'div',
 	            null,
-	            React.createElement(Header, { title: "New Header", status: this.state.status })
+	            React.createElement(Header, { title: this.state.title, status: this.state.status })
 	        );
 	    }
 
