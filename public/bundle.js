@@ -55,8 +55,8 @@
 	var APP = __webpack_require__(196);
 	var Audience = __webpack_require__(250);
 	var Speaker = __webpack_require__(253);
-	var Board = __webpack_require__(255);
-	var Whoops404 = __webpack_require__(256);
+	var Board = __webpack_require__(256);
+	var Whoops404 = __webpack_require__(257);
 
 	var routes = React.createElement(
 		Route,
@@ -23580,7 +23580,8 @@
 	            status: 'disconnected',
 	            title: '',
 	            member: {},
-	            audience: []
+	            audience: [],
+	            speaker: ''
 	        };
 	    },
 
@@ -23588,9 +23589,11 @@
 	        this.socket = io('http://localhost:3000');
 	        this.socket.on('connect', this.connect);
 	        this.socket.on('disconnect', this.disconnect);
-	        this.socket.on('welcome', this.welcome);
+	        this.socket.on('welcome', this.updateState);
 	        this.socket.on('joined', this.joined);
 	        this.socket.on('audience', this.updateAudience);
+	        this.socket.on('start', this.start);
+	        this.socket.on('end', this.updateState);
 	    },
 
 	    emit: function emit(eventName, payload) {
@@ -23601,19 +23604,25 @@
 
 	        var member = sessionStorage.member ? JSON.parse(sessionStorage.member) : null;
 
-	        if (member) {
+	        if (member && member.type === 'audience') {
 	            this.emit('join', member);
+	        } else if (member && member.type === 'speaker') {
+	            this.emit('start', { name: member.name, title: sessionStorage.title });
 	        }
 
 	        this.setState({ status: 'connected' });
 	    },
 
 	    disconnect: function disconnect() {
-	        this.setState({ status: 'disconnected' });
+	        this.setState({
+	            status: 'disconnected',
+	            title: 'disconnected',
+	            speaker: ''
+	        });
 	    },
 
-	    welcome: function welcome(serverState) {
-	        this.setState({ title: serverState.title });
+	    updateState: function updateState(serverState) {
+	        this.setState(serverState);
 	    },
 
 	    joined: function joined(member) {
@@ -23625,11 +23634,18 @@
 	        this.setState({ audience: newAudience });
 	    },
 
+	    start: function start(presentation) {
+	        if (this.state.member.type === 'speaker') {
+	            sessionStorage.title = presentation.title;
+	        }
+	        this.setState(presentation);
+	    },
+
 	    render: function render() {
 	        return React.createElement(
 	            'div',
 	            null,
-	            React.createElement(Header, { title: this.state.title, status: this.state.status }),
+	            React.createElement(Header, this.state),
 	            React.createElement(RouteHandler, _extends({ emit: this.emit }, this.state))
 	        );
 	    }
@@ -30882,6 +30898,11 @@
 						'h1',
 						null,
 						this.props.title
+					),
+					React.createElement(
+						'p',
+						null,
+						this.props.speaker
 					)
 				),
 				React.createElement(
@@ -31032,6 +31053,7 @@
 	var React = __webpack_require__(1);
 	var Display = __webpack_require__(251);
 	var JoinSpeaker = __webpack_require__(254);
+	var Attendance = __webpack_require__(255);
 
 	var Speaker = React.createClass({
 		displayName: 'Speaker',
@@ -31051,11 +31073,7 @@
 							null,
 							'Questions'
 						),
-						React.createElement(
-							'p',
-							null,
-							'Attendance'
-						)
+						React.createElement(Attendance, { audience: this.props.audience })
 					),
 					React.createElement(
 						Display,
@@ -31129,6 +31147,77 @@
 /* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var React = __webpack_require__(1);
+
+	var Attendance = React.createClass({
+		displayName: "Attendance",
+
+		addMemberRow: function addMemberRow(member, i) {
+			return React.createElement(
+				"tr",
+				{ key: i },
+				React.createElement(
+					"td",
+					null,
+					member.name
+				),
+				React.createElement(
+					"td",
+					null,
+					member.id
+				)
+			);
+		},
+
+		render: function render() {
+			return React.createElement(
+				"div",
+				null,
+				React.createElement(
+					"h2",
+					null,
+					"Attendance - ",
+					this.props.audience.length
+				),
+				React.createElement(
+					"table",
+					{ className: "table table-stripped" },
+					React.createElement(
+						"thead",
+						null,
+						React.createElement(
+							"tr",
+							null,
+							React.createElement(
+								"th",
+								null,
+								"Audience Member"
+							),
+							React.createElement(
+								"th",
+								null,
+								"Socket ID"
+							)
+						)
+					),
+					React.createElement(
+						"tbody",
+						null,
+						this.props.audience.map(this.addMemberRow)
+					)
+				)
+			);
+		}
+	});
+
+	module.exports = Attendance;
+
+/***/ },
+/* 256 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	var React = __webpack_require__(1);
@@ -31150,7 +31239,7 @@
 	module.exports = Board;
 
 /***/ },
-/* 256 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

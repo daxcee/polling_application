@@ -24,7 +24,8 @@ var APP = React.createClass({
         this.socket.on('welcome', this.updateState);
         this.socket.on('joined', this.joined);
         this.socket.on('audience', this.updateAudience);
-        this.socket.on('start', this.updateState);
+        this.socket.on('start', this.start);
+        this.socket.on('end', this.updateState);
     },
 
     emit(eventName, payload) {
@@ -35,19 +36,25 @@ var APP = React.createClass({
 
         var member = (sessionStorage.member) ? JSON.parse(sessionStorage.member) : null;
 
-        if (member) {
+        if (member && member.type === 'audience') {
             this.emit('join', member);
+        } else if (member && member.type === 'speaker') {
+            this.emit('start', { name: member.name, title: sessionStorage.title });
         }
 
         this.setState({ status: 'connected' });
     },
 
     disconnect() {
-        this.setState({ status: 'disconnected' });
+        this.setState({
+            status: 'disconnected',
+            title: 'disconnected',
+            speaker: ''
+        });
     },
 
     updateState(serverState) {
-        this.setState({ title: serverState.title });
+        this.setState(serverState);
     },
 
     joined(member) {
@@ -59,10 +66,17 @@ var APP = React.createClass({
         this.setState({ audience: newAudience });
     },
 
+    start(presentation) {
+        if (this.state.member.type === 'speaker') {
+            sessionStorage.title = presentation.title;
+        }
+        this.setState(presentation);
+    },
+
     render() {
         return (
             <div>
-                <Header title={...this.state} />
+                <Header {...this.state} />
                 <RouteHandler emit={this.emit} {...this.state} />
             </div>
         );
