@@ -31044,11 +31044,29 @@
 					Display,
 					{ 'if': this.props.status === 'connected' },
 					React.createElement(
-						'h2',
-						null,
-						'Start the presentation'
+						Display,
+						{ 'if': this.props.member.name && this.props.member.type === 'speaker' },
+						React.createElement(
+							'p',
+							null,
+							'Questions'
+						),
+						React.createElement(
+							'p',
+							null,
+							'Attendance'
+						)
 					),
-					React.createElement(JoinSpeaker, null)
+					React.createElement(
+						Display,
+						{ 'if': !this.props.member.name },
+						React.createElement(
+							'h2',
+							null,
+							'Start the presentation'
+						),
+						React.createElement(JoinSpeaker, { emit: this.props.emit })
+					)
 				)
 			);
 		}
@@ -31060,45 +31078,45 @@
 /* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var JoinSpeaker = React.createClass({
-		displayName: "JoinSpeaker",
+		displayName: 'JoinSpeaker',
 
 		start: function start() {
 			var speakerName = React.findDOMNode(this.refs.name).value;
 			var title = React.findDOMNode(this.refs.title).value;
-			alert("TODO: Join Speaker " + speakerName + " " + title);
+			this.props.emit('start', { name: speakerName, title: title });
 		},
 
 		render: function render() {
 			return React.createElement(
-				"form",
+				'form',
 				{ action: "javascript:void(0)", onSubmit: this.start },
 				React.createElement(
-					"label",
+					'label',
 					null,
-					"Full Name"
+					'Full Name'
 				),
-				React.createElement("input", { ref: "name",
+				React.createElement('input', { ref: "name",
 					className: "form-control",
 					placeholder: "enter your full name...",
 					required: true }),
 				React.createElement(
-					"label",
+					'label',
 					null,
-					"Presentation Title"
+					'Presentation Title'
 				),
-				React.createElement("input", { ref: "title",
+				React.createElement('input', { ref: "title",
 					className: "form-control",
 					placeholder: "enter a title for this Presentation...",
 					required: true }),
 				React.createElement(
-					"button",
+					'button',
 					{ className: "btn btn-primary" },
-					"Join"
+					'Join'
 				)
 			);
 		}

@@ -7,8 +7,17 @@ var Speaker = React.createClass({
 		return (
 			<div>
 				<Display if={this.props.status === 'connected'}>
-					<h2>Start the presentation</h2>
-					<JoinSpeaker />
+
+					<Display if={this.props.member.name && this.props.member.type === 'speaker'}>
+						<p>Questions</p>
+						<p>Attendance</p>
+					</Display>
+
+					<Display if={!this.props.member.name}>
+						<h2>Start the presentation</h2>
+						<JoinSpeaker emit={this.props.emit} />
+					</Display>
+
 				</Display>
 			</div>
 		);
