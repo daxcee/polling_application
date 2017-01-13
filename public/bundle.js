@@ -23579,7 +23579,8 @@
 	        return {
 	            status: 'disconnected',
 	            title: '',
-	            member: {}
+	            member: {},
+	            audience: []
 	        };
 	    },
 
@@ -23589,6 +23590,7 @@
 	        this.socket.on('disconnect', this.disconnect);
 	        this.socket.on('welcome', this.welcome);
 	        this.socket.on('joined', this.joined);
+	        this.socket.on('audience', this.updateAudience);
 	    },
 
 	    emit: function emit(eventName, payload) {
@@ -23609,6 +23611,10 @@
 
 	    joined: function joined(member) {
 	        this.setState({ member: member });
+	    },
+
+	    updateAudience: function updateAudience(newAudience) {
+	        this.setState({ audience: newAudience });
 	    },
 
 	    render: function render() {
@@ -30910,6 +30916,12 @@
 							null,
 							'Welcome ',
 							this.props.member.name
+						),
+						React.createElement(
+							'p',
+							null,
+							this.props.audience.length,
+							' audience members connected'
 						),
 						React.createElement(
 							'p',
