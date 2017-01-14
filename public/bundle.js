@@ -23582,7 +23582,8 @@
 	            member: {},
 	            audience: [],
 	            speaker: '',
-	            questions: []
+	            questions: [],
+	            currentQuestion: false
 	        };
 	    },
 
@@ -23595,6 +23596,7 @@
 	        this.socket.on('audience', this.updateAudience);
 	        this.socket.on('start', this.start);
 	        this.socket.on('end', this.updateState);
+	        this.socket.on('ask', this.ask);
 	    },
 
 	    emit: function emit(eventName, payload) {
@@ -23640,6 +23642,10 @@
 	            sessionStorage.title = presentation.title;
 	        }
 	        this.setState(presentation);
+	    },
+
+	    ask: function ask(question) {
+	        this.setState({ currentQuestion: question });
 	    },
 
 	    render: function render() {
@@ -30942,21 +30948,34 @@
 						Display,
 						{ 'if': this.props.member.name },
 						React.createElement(
-							'h2',
-							null,
-							'Welcome ',
-							this.props.member.name
+							Display,
+							{ 'if': !this.props.currentQuestion },
+							React.createElement(
+								'h2',
+								null,
+								'Welcome ',
+								this.props.member.name
+							),
+							React.createElement(
+								'p',
+								null,
+								this.props.audience.length,
+								' audience members connected'
+							),
+							React.createElement(
+								'p',
+								null,
+								'Questions will appear here.'
+							)
 						),
 						React.createElement(
-							'p',
-							null,
-							this.props.audience.length,
-							' audience members connected'
-						),
-						React.createElement(
-							'p',
-							null,
-							'Questions will appear here.'
+							Display,
+							{ 'if': this.props.currentQuestion },
+							React.createElement(
+								'h2',
+								null,
+								this.props.currentQuestion.q
+							)
 						)
 					),
 					React.createElement(
@@ -31070,7 +31089,7 @@
 					React.createElement(
 						Display,
 						{ 'if': this.props.member.name && this.props.member.type === 'speaker' },
-						React.createElement(Questions, { questions: this.props.questions }),
+						React.createElement(Questions, { questions: this.props.questions, emit: this.props.emit }),
 						React.createElement(Attendance, { audience: this.props.audience })
 					),
 					React.createElement(
@@ -31216,20 +31235,24 @@
 /* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(1);
 
 	var Questions = React.createClass({
-		displayName: "Questions",
+		displayName: 'Questions',
+
+		ask: function ask(question) {
+			this.props.emit('ask', question);
+		},
 
 		addQuestion: function addQuestion(question, i) {
 			return React.createElement(
-				"div",
+				'div',
 				{ key: i, className: "col-xs-12 col-sm-6 col-md-3" },
 				React.createElement(
-					"span",
-					null,
+					'span',
+					{ onClick: this.ask.bind(null, question) },
 					question.q
 				)
 			);
@@ -31237,12 +31260,12 @@
 
 		render: function render() {
 			return React.createElement(
-				"div",
+				'div',
 				{ id: "questions", className: "row" },
 				React.createElement(
-					"h2",
+					'h2',
 					null,
-					"Questions"
+					'Questions'
 				),
 				this.props.questions.map(this.addQuestion)
 			);
