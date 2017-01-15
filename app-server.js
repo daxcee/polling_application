@@ -74,6 +74,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('answer', function(payload) {
 		results[payload.choice]++;
+		io.sockets.emit('results', results);
 		console.log("Answer: '%s' - %j", payload.choice, results);
 	});
 
@@ -82,7 +83,8 @@ io.sockets.on('connection', function (socket) {
 		audience: audience,
 		speaker: speaker.name,
 		questions: questions,
-		currentQuestion: currentQuestion
+		currentQuestion: currentQuestion,
+		results: results
 	});
 
 	connections.push(socket);
