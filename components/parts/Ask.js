@@ -38,7 +38,7 @@ var Ask = React.createClass({
 
 	addChoiceButton(choice, i) {
 
-		var buttonTypes = ['Jeff Bezos', 'Tim Cook', 'Elon Musk', 'Rosalind Brewer'];
+		var buttonTypes = ['primary', 'success', 'warning', 'danger'];
 
 		return (
 			<button key={i}
